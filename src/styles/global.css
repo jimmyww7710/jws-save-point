@@ -1,0 +1,36 @@
+/* 設計 Token：取自 WanderLog 參考稿，Phase 2 會擴充為完整設計系統。 */
+:root {
+  --ink: #172b40;
+  --muted: #5f6f82;
+  --line: #e6edf2;
+  --blue: #1686b4;
+  --paper: #fff;
+  --soft: #f5f8fa;
+  --radius: 14px;
+  --font-sans: system-ui, -apple-system, 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--soft);
+  line-height: 1.7;
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

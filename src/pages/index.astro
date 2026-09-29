@@ -1,0 +1,27 @@
+---
+// Phase 1 暫時首頁：列出文章以驗證 Content Collections。Phase 2 會換成正式設計。
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config/site';
+import { formatDate } from '../utils/date';
+import { getPublishedPosts, postUrl } from '../utils/posts';
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout>
+  <h1>{SITE.name}</h1>
+  <p>{SITE.description}</p>
+  <ul>
+    {
+      posts.map((post) => (
+        <li>
+          <a href={postUrl(post)}>{post.data.title}</a>
+          {' '}
+          <time datetime={formatDate(post.data.publishedAt)}>{formatDate(post.data.publishedAt)}</time>
+          {' '}· {post.data.category}
+          {post.data.draft && ' · 草稿'}
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>
