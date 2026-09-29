@@ -1,0 +1,32 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { eyebrow, title, description, noindex } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} noindex={noindex}>
+  <header class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </div>
+  </header>
+  <div class="wrap listing">
+    <slot />
+  </div>
+</BaseLayout>
+
+<style>
+  .listing {
+    padding-top: 40px;
+    padding-bottom: 64px;
+  }
+</style>

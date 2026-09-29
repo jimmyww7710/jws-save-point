@@ -1,0 +1,43 @@
+---
+import PostCard from './PostCard.astro';
+import type { Post } from '../utils/posts';
+
+interface Props {
+  posts: Post[];
+  empty?: string;
+  eagerCount?: number;
+}
+
+const { posts, empty = '目前還沒有文章，敬請期待。', eagerCount = 0 } = Astro.props;
+---
+
+{
+  posts.length > 0 ? (
+    <div class="grid">
+      {posts.map((post, i) => (
+        <PostCard post={post} eager={i < eagerCount} />
+      ))}
+    </div>
+  ) : (
+    <p class="empty">{empty}</p>
+  )
+}
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+  @media (max-width: 1000px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+  }
+</style>

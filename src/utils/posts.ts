@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { getCategory, tagSlug } from '../config/taxonomy';
+import { CATEGORIES, getCategory, tagSlug, type Category, type CategoryGroup } from '../config/taxonomy';
 
 export type Post = CollectionEntry<'blog'>;
 
@@ -13,19 +13,21 @@ export async function getPublishedPosts(): Promise<Post[]> {
   return posts.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 }
 
-export function postUrl(post: Post): string {
-  return `/blog/${post.id}/`;
-}
+export const postUrl = (post: Post) => `/blog/${post.id}/`;
+export const categoryUrl = (category: Category) => `/categories/${category.slug}/`;
+export const tagUrl = (slug: string) => `/tags/${slug}/`;
+export const groupUrl = (group: CategoryGroup) => `/${group}/`;
+export const blogPageUrl = (page: number) => (page === 1 ? '/blog/' : `/blog/page/${page}/`);
 
-export function categoryUrl(post: Post): string {
-  return `/categories/${getCategory(post.data.category).slug}/`;
-}
+export const groupOf = (post: Post): CategoryGroup => getCategory(post.data.category).group;
 
 export interface TagSummary {
   name: string;
   slug: string;
   count: number;
 }
+
+export const toTagLinks = (names: string[]) => names.map((name) => ({ name, slug: tagSlug(name) }));
 
 /** 彙整所有標籤與文章數。不同寫法對應到相同 slug 時直接中止建置，避免網址衝突。 */
 export function collectTags(posts: Post[]): TagSummary[] {
@@ -42,4 +44,24 @@ export function collectTags(posts: Post[]): TagSummary[] {
     }
   }
   return [...bySlug.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+export interface CategorySummary {
+  category: Category;
+  count: number;
+}
+
+/** 所有已定義分類與文章數（含 0 篇的分類），可依群組篩選。 */
+export function collectCategories(posts: Post[], group?: CategoryGroup): CategorySummary[] {
+  return CATEGORIES.filter((c) => !group || c.group === group).map((category) => ({
+    category,
+    count: posts.filter((p) => p.data.category === category.name).length,
+  }));
+}
+
+/** 切分頁；至少回傳一頁（空陣列），讓列表頁可以顯示「尚無文章」。 */
+export function paginate<T>(items: T[], size: number): T[][] {
+  const pages: T[][] = [];
+  for (let i = 0; i < items.length; i += size) pages.push(items.slice(i, i + size));
+  return pages.length ? pages : [[]];
 }

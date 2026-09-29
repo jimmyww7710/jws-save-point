@@ -1,0 +1,39 @@
+---
+// 技術文章（/tech/）與生活文章（/life/）入口，由 CATEGORY_GROUPS 產生。
+import type { GetStaticPaths } from 'astro';
+import CategoryList from '../components/CategoryList.astro';
+import PostGrid from '../components/PostGrid.astro';
+import ListingLayout from '../layouts/ListingLayout.astro';
+import { CATEGORY_GROUPS, type CategoryGroup } from '../config/taxonomy';
+import { collectCategories, getPublishedPosts, groupOf, type Post } from '../utils/posts';
+
+export const getStaticPaths = (async () => {
+  const posts = await getPublishedPosts();
+  return (Object.keys(CATEGORY_GROUPS) as CategoryGroup[]).map((group) => ({
+    params: { group },
+    props: { group, allPosts: posts, posts: posts.filter((p) => groupOf(p) === group) },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  group: CategoryGroup;
+  allPosts: Post[];
+  posts: Post[];
+}
+
+const { group, allPosts, posts } = Astro.props;
+const info = CATEGORY_GROUPS[group];
+---
+
+<ListingLayout eyebrow={group === 'tech' ? 'Tech Notes' : 'Life Notes'} title={info.label} description={`${info.description}共 ${posts.length} 篇。`}>
+  <nav class="cats" aria-label={`${info.label}分類`}>
+    <CategoryList items={collectCategories(allPosts, group)} />
+  </nav>
+  <PostGrid posts={posts} eagerCount={3} empty={`目前還沒有${info.label}。`} />
+</ListingLayout>
+
+<style>
+  .cats {
+    margin-bottom: 32px;
+  }
+</style>

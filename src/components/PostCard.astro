@@ -1,0 +1,149 @@
+---
+import { Image } from 'astro:assets';
+import { getCategory } from '../config/taxonomy';
+import { formatDate } from '../utils/date';
+import { categoryUrl, postUrl, toTagLinks, type Post } from '../utils/posts';
+
+interface Props {
+  post: Post;
+  /** 首屏卡片不延遲載入圖片，改善 LCP。 */
+  eager?: boolean;
+}
+
+const { post, eager = false } = Astro.props;
+const { title, description, category, tags, publishedAt, cover, coverAlt, draft } = post.data;
+const date = formatDate(publishedAt);
+---
+
+<article class="card">
+  {
+    cover && (
+      <Image
+        class="cover"
+        src={cover}
+        alt={coverAlt ?? ''}
+        widths={[400, 640, 800]}
+        sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 380px"
+        loading={eager ? 'eager' : 'lazy'}
+      />
+    )
+  }
+  <div class="body">
+    <p class="meta-top">
+      <a class="category" href={categoryUrl(getCategory(category))}>{category}</a>
+      {draft && <span class="draft">草稿</span>}
+    </p>
+    <h3><a class="title" href={postUrl(post)}>{title}</a></h3>
+    <p class="desc">{description}</p>
+    <div class="meta">
+      <time datetime={date}>{date}</time>
+      <ul class="tags" aria-label="標籤">
+        {toTagLinks(tags).slice(0, 3).map((tag) => <li>#{tag.name}</li>)}
+      </ul>
+    </div>
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover,
+  .card:focus-within {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+  }
+  .cover {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px;
+  }
+  .meta-top {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 0;
+    font-size: 0.8rem;
+  }
+  .category {
+    position: relative;
+    z-index: 1;
+    color: var(--link);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .category:hover {
+    text-decoration: underline;
+  }
+  .draft {
+    background: #fff3cd;
+    color: #7a5a00;
+    padding: 0 8px;
+    border-radius: 4px;
+  }
+  h3 {
+    font-size: 1.12rem;
+    line-height: 1.5;
+    margin: 6px 0 10px;
+    overflow-wrap: anywhere;
+  }
+  /* 標題連結延伸覆蓋整張卡片；分類連結以 z-index 維持可單獨點擊。 */
+  .title::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .title:focus-visible {
+    outline: none;
+  }
+  .card:has(.title:focus-visible) {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0 0 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .meta {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: var(--faint);
+    border-top: 1px solid var(--line);
+    padding-top: 13px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 4px 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    min-width: 0;
+  }
+  .tags li {
+    overflow-wrap: anywhere;
+  }
+</style>

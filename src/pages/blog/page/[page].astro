@@ -1,0 +1,27 @@
+---
+// 第 2 頁起的文章列表；第 1 頁為 /blog/。
+import type { GetStaticPaths } from 'astro';
+import BlogIndex from '../../../components/BlogIndex.astro';
+import { SITE } from '../../../config/site';
+import { getPublishedPosts, paginate, type Post } from '../../../utils/posts';
+
+export const getStaticPaths = (async () => {
+  const allPosts = await getPublishedPosts();
+  const pages = paginate(allPosts, SITE.postsPerPage);
+  return pages.slice(1).map((posts, i) => ({
+    params: { page: String(i + 2) },
+    props: { allPosts, posts, page: i + 2, totalPages: pages.length },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  allPosts: Post[];
+  posts: Post[];
+  page: number;
+  totalPages: number;
+}
+
+const props = Astro.props;
+---
+
+<BlogIndex {...props} />

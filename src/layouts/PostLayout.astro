@@ -1,0 +1,173 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from './BaseLayout.astro';
+import TagList from '../components/TagList.astro';
+import { CATEGORY_GROUPS, getCategory } from '../config/taxonomy';
+import { formatDate } from '../utils/date';
+import { categoryUrl, groupUrl, toTagLinks, type Post } from '../utils/posts';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { title, description, seo, cover, coverAlt, publishedAt, updatedAt, category, tags, draft } = post.data;
+const categoryInfo = getCategory(category);
+const published = formatDate(publishedAt);
+const updated = updatedAt && formatDate(updatedAt);
+---
+
+<BaseLayout
+  title={seo?.title ?? title}
+  description={seo?.description ?? description}
+  image={cover}
+  imageAlt={coverAlt}
+  article={{ publishedAt, updatedAt, category, tags }}
+>
+  <article class="post">
+    <header class="post-head wrap">
+      <nav class="crumbs" aria-label="麵包屑">
+        <a href={groupUrl(categoryInfo.group)}>{CATEGORY_GROUPS[categoryInfo.group].label}</a>
+        <span aria-hidden="true">/</span>
+        <a href={categoryUrl(categoryInfo)}>{category}</a>
+      </nav>
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      <p class="meta">
+        <span>發布於 <time datetime={published}>{published}</time></span>
+        {updated && updated !== published && <span>更新於 <time datetime={updated}>{updated}</time></span>}
+        {draft && <span class="draft">草稿（僅本機預覽）</span>}
+      </p>
+      <TagList tags={toTagLinks(tags)} />
+    </header>
+
+    {
+      cover && (
+        <div class="cover wrap">
+          <Image
+            src={cover}
+            alt={coverAlt ?? ''}
+            widths={[640, 960, 1280, 1600]}
+            sizes="(max-width: 1000px) 100vw, 960px"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      )
+    }
+
+    <div class="post-body wrap">
+      <div class="prose">
+        <slot />
+      </div>
+    </div>
+
+    <footer class="post-foot wrap">
+      <a class="back" href={categoryUrl(categoryInfo)}>← 更多 {category} 文章</a>
+      <a class="back" href="/blog/">所有文章</a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .post {
+    padding-bottom: 64px;
+  }
+  .post-head,
+  .post-body,
+  .post-foot {
+    max-width: calc(var(--prose) + var(--gutter) * 2);
+  }
+  .post-head {
+    padding-top: 48px;
+    padding-bottom: 28px;
+  }
+  .crumbs {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .crumbs a {
+    color: var(--link);
+    font-weight: 650;
+  }
+  .crumbs a:hover {
+    text-decoration: underline;
+  }
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.3;
+    margin: 0 0 14px;
+    overflow-wrap: anywhere;
+  }
+  .lead {
+    font-size: 1.08rem;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    font-size: 0.88rem;
+    color: var(--faint);
+    margin: 0 0 16px;
+  }
+  .draft {
+    background: #fff3cd;
+    color: #7a5a00;
+    padding: 0 8px;
+    border-radius: 4px;
+  }
+  .cover {
+    max-width: calc(960px + var(--gutter) * 2);
+    margin-bottom: 40px;
+  }
+  .cover img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+  .post-body {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  .post-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 32px;
+    font-size: 0.92rem;
+  }
+  .back {
+    color: var(--link);
+  }
+  .back:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 600px) {
+    .post-head {
+      padding-top: 32px;
+    }
+    .cover {
+      padding: 0;
+      margin-bottom: 24px;
+    }
+    .cover img {
+      border-radius: 0;
+    }
+    .post-body {
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      padding-top: 28px;
+      padding-bottom: 28px;
+    }
+  }
+</style>

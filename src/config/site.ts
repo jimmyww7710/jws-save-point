@@ -8,14 +8,15 @@ export const SITE = {
   tagline: '記錄技術・保存生活',
   description: '一位軟體工程師的存檔點：記錄前後端開發、系統架構與除錯心得，也保存閱讀、旅行與日常的片刻。',
   author: 'Jimmy Wang',
+  email: 'jimmyww7710@gmail.com',
+  /** 作者簡介：顯示於首頁 Hero 與關於頁。 */
+  bio: '我是 Jimmy，一名軟體工程師。平常寫前後端、處理系統架構與除錯；下班後喜歡閱讀、旅行，和把生活整理成文字。這裡是我的存檔點，記下學到的東西，也記下想留住的日子。',
   locale: 'zh-Hant',
+  ogLocale: 'zh_TW',
   /** 文章日期一律以此時區解讀與顯示，避免部署環境（UTC）造成日期偏移。 */
   timezone: 'Asia/Taipei',
   /** 與 timezone 對應的 UTC 偏移；僅寫日期（YYYY-MM-DD）的 Frontmatter 以此時區的午夜解讀。 */
   utcOffset: '+08:00',
   postsPerPage: 9,
-  social: [
-    { label: 'GitHub', href: 'https://github.com/' },
-    { label: 'Email', href: 'mailto:hello@example.com' },
-  ],
+  social: [{ label: 'Email', href: 'mailto:jimmyww7710@gmail.com' }],
 } as const;

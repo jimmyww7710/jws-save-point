@@ -1,0 +1,57 @@
+---
+import CategoryList from '../../components/CategoryList.astro';
+import ListingLayout from '../../layouts/ListingLayout.astro';
+import { CATEGORY_GROUPS, type CategoryGroup } from '../../config/taxonomy';
+import { collectCategories, getPublishedPosts, groupUrl } from '../../utils/posts';
+
+const posts = await getPublishedPosts();
+const groups = Object.entries(CATEGORY_GROUPS) as [CategoryGroup, (typeof CATEGORY_GROUPS)[CategoryGroup]][];
+---
+
+<ListingLayout eyebrow="Categories" title="文章分類" description="文章分為技術與生活兩大類，每篇文章屬於一個主要分類。">
+  <div class="groups">
+    {
+      groups.map(([key, group]) => (
+        <section class="group" aria-labelledby={`group-${key}`}>
+          <div class="section-head">
+            <h2 id={`group-${key}`}>{group.label}</h2>
+            <a class="text-link" href={groupUrl(key)}>
+              查看全部 →
+            </a>
+          </div>
+          <p>{group.description}</p>
+          <CategoryList items={collectCategories(posts, key)} label={`${group.label}分類`} />
+        </section>
+      ))
+    }
+  </div>
+</ListingLayout>
+
+<style>
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .group {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+  .section-head {
+    margin-bottom: 8px;
+  }
+  .group p {
+    color: var(--muted);
+    margin: 0 0 18px;
+  }
+  @media (max-width: 760px) {
+    .groups {
+      grid-template-columns: 1fr;
+    }
+    .group {
+      padding: 22px;
+    }
+  }
+</style>

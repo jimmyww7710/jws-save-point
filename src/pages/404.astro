@@ -1,0 +1,21 @@
+---
+import ListingLayout from '../layouts/ListingLayout.astro';
+---
+
+<ListingLayout eyebrow="404" title="找不到這個存檔點" description="這個頁面可能已經移動或不存在。" noindex>
+  <div class="actions">
+    <a class="btn" href="/">回到首頁</a>
+    <a class="btn" href="/blog/">瀏覽所有文章</a>
+  </div>
+</ListingLayout>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .btn {
+    border-color: var(--line);
+  }
+</style>

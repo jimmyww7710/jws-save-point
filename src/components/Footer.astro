@@ -1,0 +1,61 @@
+---
+import { SITE } from '../config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap inner">
+    <p>© {year} {SITE.name} · {SITE.author}</p>
+    <ul class="links">
+      {
+        SITE.social.map((link) => (
+          <li>
+            <a href={link.href}>{link.label}</a>
+          </li>
+        ))
+      }
+      <li><a href="/sitemap-index.xml">Sitemap</a></li>
+      <li><a href="#top">回到頂部 ↑</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    padding: 28px 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  .inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  p {
+    margin: 0;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  a:hover {
+    color: var(--link);
+  }
+  @media (max-width: 600px) {
+    .inner {
+      flex-direction: column;
+      text-align: center;
+    }
+    .links {
+      justify-content: center;
+    }
+  }
+</style>

@@ -1,0 +1,43 @@
+---
+import type { GetStaticPaths } from 'astro';
+import CategoryList from '../../components/CategoryList.astro';
+import PostGrid from '../../components/PostGrid.astro';
+import ListingLayout from '../../layouts/ListingLayout.astro';
+import { CATEGORIES, CATEGORY_GROUPS, type Category } from '../../config/taxonomy';
+import { collectCategories, getPublishedPosts, type Post } from '../../utils/posts';
+
+// 每個已定義的分類都有頁面（0 篇時顯示空狀態），網址不會因文章增減而消失。
+export const getStaticPaths = (async () => {
+  const posts = await getPublishedPosts();
+  return CATEGORIES.map((category) => ({
+    params: { category: category.slug },
+    props: { category, posts: posts.filter((p) => p.data.category === category.name), allPosts: posts },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  category: Category;
+  posts: Post[];
+  allPosts: Post[];
+}
+
+const { category, posts, allPosts } = Astro.props;
+const group = CATEGORY_GROUPS[category.group];
+---
+
+<ListingLayout
+  eyebrow={`${group.label} · Category`}
+  title={category.name}
+  description={`「${category.name}」分類下共有 ${posts.length} 篇文章。`}
+>
+  <nav class="siblings" aria-label={`其他${group.label}分類`}>
+    <CategoryList items={collectCategories(allPosts, category.group)} current={category.slug} />
+  </nav>
+  <PostGrid posts={posts} eagerCount={3} empty={`「${category.name}」分類目前還沒有文章。`} />
+</ListingLayout>
+
+<style>
+  .siblings {
+    margin-bottom: 32px;
+  }
+</style>

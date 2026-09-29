@@ -1,0 +1,24 @@
+---
+import { categoryUrl, type CategorySummary } from '../utils/posts';
+
+interface Props {
+  items: CategorySummary[];
+  current?: string;
+  label?: string;
+}
+
+const { items, current, label = '分類' } = Astro.props;
+---
+
+<ul class="chips" aria-label={label}>
+  {
+    items.map(({ category, count }) => (
+      <li>
+        <a class="chip" href={categoryUrl(category)} aria-current={category.slug === current ? 'page' : undefined}>
+          {category.name}
+          <span class="count">{count}</span>
+        </a>
+      </li>
+    ))
+  }
+</ul>

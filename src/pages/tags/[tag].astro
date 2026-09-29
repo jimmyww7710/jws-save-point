@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths } from 'astro';
+import PostGrid from '../../components/PostGrid.astro';
+import ListingLayout from '../../layouts/ListingLayout.astro';
+import { tagSlug } from '../../config/taxonomy';
+import { collectTags, getPublishedPosts, type Post, type TagSummary } from '../../utils/posts';
+
+export const getStaticPaths = (async () => {
+  const posts = await getPublishedPosts();
+  return collectTags(posts).map((tag) => ({
+    params: { tag: tag.slug },
+    props: { tag, posts: posts.filter((p) => p.data.tags.some((name) => tagSlug(name) === tag.slug)) },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  tag: TagSummary;
+  posts: Post[];
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<ListingLayout eyebrow="Tag" title={`#${tag.name}`} description={`標記為「${tag.name}」的文章共 ${posts.length} 篇。`}>
+  <PostGrid posts={posts} eagerCount={3} />
+  <p class="more"><a class="text-link" href="/tags/">← 所有標籤</a></p>
+</ListingLayout>
+
+<style>
+  .more {
+    margin: 32px 0 0;
+  }
+</style>

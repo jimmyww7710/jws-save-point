@@ -1,0 +1,10 @@
+---
+import BlogIndex from '../../components/BlogIndex.astro';
+import { SITE } from '../../config/site';
+import { getPublishedPosts, paginate } from '../../utils/posts';
+
+const allPosts = await getPublishedPosts();
+const pages = paginate(allPosts, SITE.postsPerPage);
+---
+
+<BlogIndex allPosts={allPosts} posts={pages[0]!} page={1} totalPages={pages.length} />

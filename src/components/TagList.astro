@@ -1,0 +1,26 @@
+---
+import { tagUrl } from '../utils/posts';
+
+interface Props {
+  tags: { name: string; slug: string; count?: number }[];
+  current?: string;
+  label?: string;
+}
+
+const { tags, current, label = '標籤' } = Astro.props;
+---
+
+{
+  tags.length > 0 && (
+    <ul class="chips" aria-label={label}>
+      {tags.map((tag) => (
+        <li>
+          <a class="chip" href={tagUrl(tag.slug)} aria-current={tag.slug === current ? 'page' : undefined}>
+            #{tag.name}
+            {tag.count !== undefined && <span class="count">{tag.count}</span>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}

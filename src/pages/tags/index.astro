@@ -1,0 +1,11 @@
+---
+import TagList from '../../components/TagList.astro';
+import ListingLayout from '../../layouts/ListingLayout.astro';
+import { collectTags, getPublishedPosts } from '../../utils/posts';
+
+const tags = collectTags(await getPublishedPosts());
+---
+
+<ListingLayout eyebrow="Tags" title="所有標籤" description={`共 ${tags.length} 個標籤，數字為文章數。同一個標籤可以跨分類使用。`}>
+  {tags.length > 0 ? <TagList tags={tags} label="所有標籤" /> : <p class="empty">目前還沒有標籤。</p>}
+</ListingLayout>

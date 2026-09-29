@@ -1,0 +1,196 @@
+---
+import { SITE } from '../config/site';
+
+const NAV = [
+  { href: '/', label: '首頁' },
+  { href: '/blog/', label: '文章' },
+  { href: '/categories/', label: '分類' },
+  { href: '/tags/', label: '標籤' },
+  { href: '/about/', label: '關於我' },
+];
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class="site-header" data-site-header>
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <img src="/favicon.svg" width="36" height="36" alt="" />
+      <span>{SITE.name}<small>{SITE.tagline}</small></span>
+    </a>
+    <button class="menu-btn" type="button" aria-controls="site-nav" aria-expanded="false" hidden>
+      <span class="menu-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">選單</span>
+    </button>
+    <nav id="site-nav" aria-label="主要導覽">
+      <ul>
+        {
+          NAV.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // 行動版選單：沒有 JavaScript 時選單維持展開，確保仍可導覽。
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const button = header?.querySelector<HTMLButtonElement>('.menu-btn');
+  const nav = header?.querySelector<HTMLElement>('#site-nav');
+
+  if (header && button && nav) {
+    header.dataset.js = '';
+    button.hidden = false;
+
+    const setOpen = (open: boolean) => {
+      nav.classList.toggle('open', open);
+      button.setAttribute('aria-expanded', String(open));
+    };
+
+    button.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && nav.classList.contains('open')) {
+        setOpen(false);
+        button.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    min-height: var(--header-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.3rem;
+    font-weight: 750;
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+  }
+  .brand small {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+  }
+  nav ul {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.95rem;
+  }
+  nav a {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+  }
+  nav a:hover {
+    color: var(--link);
+  }
+  nav a[aria-current='page'] {
+    color: var(--link);
+    font-weight: 650;
+  }
+  .menu-btn {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  .menu-icon,
+  .menu-icon::before,
+  .menu-icon::after {
+    display: block;
+    width: 22px;
+    height: 2px;
+    margin: auto;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 0.2s;
+  }
+  .menu-icon {
+    position: relative;
+  }
+  .menu-icon::before,
+  .menu-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+  .menu-icon::before {
+    top: -7px;
+  }
+  .menu-icon::after {
+    top: 7px;
+  }
+  .menu-btn[aria-expanded='true'] .menu-icon {
+    background: transparent;
+  }
+  .menu-btn[aria-expanded='true'] .menu-icon::before {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .menu-btn[aria-expanded='true'] .menu-icon::after {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  @media (max-width: 720px) {
+    .bar {
+      flex-wrap: wrap;
+    }
+    .brand {
+      font-size: 1.12rem;
+    }
+    .brand img {
+      width: 32px;
+      height: 32px;
+    }
+    .menu-btn {
+      display: block;
+    }
+    nav {
+      flex-basis: 100%;
+      padding-bottom: 12px;
+    }
+    nav ul {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 2px;
+    }
+    nav a {
+      padding: 12px 10px;
+    }
+    .site-header[data-js] nav:not(.open) {
+      display: none;
+    }
+  }
+</style>

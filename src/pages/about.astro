@@ -1,0 +1,83 @@
+---
+import ListingLayout from '../layouts/ListingLayout.astro';
+import { SITE } from '../config/site';
+import { CATEGORIES, CATEGORY_GROUPS } from '../config/taxonomy';
+import { categoryUrl } from '../utils/posts';
+---
+
+<ListingLayout eyebrow="About" title="關於我" description={`${SITE.author}，${SITE.name} 的作者。`}>
+  <div class="about">
+    <section class="card prose">
+      <p>{SITE.bio}</p>
+      <p>
+        取名「Save Point」，是因為遊戲裡的存檔點總讓人安心：走過一段路，停下來記錄，再繼續前進。
+        這個部落格就是我的存檔點。
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>這裡會寫什麼</h2>
+      {
+        (['tech', 'life'] as const).map((group) => (
+          <div class="topic">
+            <h3>{CATEGORY_GROUPS[group].label}</h3>
+            <ul class="chips">
+              {CATEGORIES.filter((c) => c.group === group).map((c) => (
+                <li>
+                  <a class="chip" href={categoryUrl(c)}>
+                    {c.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </section>
+
+    <section class="card">
+      <h2>聯絡我</h2>
+      <p>歡迎來信交流技術、文章回饋或只是打聲招呼：</p>
+      <p><a class="mail" href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+    </section>
+  </div>
+</ListingLayout>
+
+<style>
+  .about {
+    display: grid;
+    gap: 24px;
+    max-width: var(--prose);
+  }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+  h2 {
+    font-size: 1.2rem;
+    margin: 0 0 12px;
+  }
+  h3 {
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin: 16px 0 8px;
+  }
+  .card > p:last-child {
+    margin-bottom: 0;
+  }
+  .mail {
+    color: var(--link);
+    font-weight: 650;
+    overflow-wrap: anywhere;
+  }
+  .mail:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 600px) {
+    .card {
+      padding: 22px;
+    }
+  }
+</style>
