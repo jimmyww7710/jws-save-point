@@ -59,6 +59,28 @@ export function collectCategories(posts: Post[], group?: CategoryGroup): Categor
   }));
 }
 
+/** 依發布日期取得較新與較舊的相鄰文章（posts 需為 getPublishedPosts() 的排序）。 */
+export function getAdjacentPosts(posts: Post[], post: Post): { newer?: Post; older?: Post } {
+  const i = posts.findIndex((p) => p.id === post.id);
+  return { newer: posts[i - 1], older: posts[i + 1] };
+}
+
+/** 相關文章：每個共同標籤 2 分、同分類 1 分，分數相同時較新的優先；沒有關聯則不列出。 */
+export function getRelatedPosts(posts: Post[], post: Post, limit = 3): Post[] {
+  const tags = new Set(post.data.tags.map(tagSlug));
+  return posts
+    .filter((p) => p.id !== post.id)
+    .map((p) => ({
+      post: p,
+      score:
+        p.data.tags.filter((t) => tags.has(tagSlug(t))).length * 2 + (p.data.category === post.data.category ? 1 : 0),
+    }))
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score || b.post.data.publishedAt.getTime() - a.post.data.publishedAt.getTime())
+    .slice(0, limit)
+    .map((r) => r.post);
+}
+
 /** 切分頁；至少回傳一頁（空陣列），讓列表頁可以顯示「尚無文章」。 */
 export function paginate<T>(items: T[], size: number): T[][] {
   const pages: T[][] = [];

@@ -1,0 +1,100 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+  /** sidebar：寬螢幕側欄；inline：窄螢幕可收合的區塊。 */
+  variant: 'sidebar' | 'inline';
+}
+
+const { headings, variant } = Astro.props;
+const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  items.length >= 2 &&
+    (variant === 'sidebar' ? (
+      <nav class="toc toc--sidebar" aria-labelledby="toc-title" data-toc>
+        <p class="toc-title" id="toc-title">
+          文章目錄
+        </p>
+        <ol>
+          {items.map((h) => (
+            <li class={`depth-${h.depth}`}>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    ) : (
+      <details class="toc toc--inline">
+        <summary>文章目錄（{items.length}）</summary>
+        <nav aria-label="文章目錄">
+          <ol>
+            {items.map((h) => (
+              <li class={`depth-${h.depth}`}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </details>
+    ))
+}
+
+<style>
+  .toc ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .toc li {
+    margin: 0;
+  }
+  .toc a {
+    display: block;
+    padding: 5px 0 5px 12px;
+    border-left: 2px solid var(--line);
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .toc .depth-3 a {
+    padding-left: 26px;
+    font-size: 0.84rem;
+  }
+  .toc a:hover,
+  .toc a[aria-current='true'] {
+    color: var(--link);
+    border-left-color: var(--link);
+  }
+  .toc-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    margin: 0 0 10px;
+  }
+  .toc--sidebar {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+    max-height: calc(100vh - var(--header-h) - 48px);
+    overflow-y: auto;
+  }
+  .toc--inline {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+  }
+  .toc--inline summary {
+    cursor: pointer;
+    font-weight: 650;
+    font-size: 0.92rem;
+  }
+  .toc--inline nav {
+    margin-top: 10px;
+  }
+</style>

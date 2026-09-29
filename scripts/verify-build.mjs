@@ -129,9 +129,32 @@ for (const file of htmlFiles) {
   for (const [, href] of html.matchAll(/\shref="(\/(?!\/)[^"]*)"/g)) {
     if (!existsSync(distPathFor(href))) brokenLinks.push(`${name} → ${href}`);
   }
+  // 頁內錨點（例如文章目錄）必須對應到頁面上實際存在的 id
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const [, hash] of html.matchAll(/\shref="#([^"]+)"/g)) {
+    if (!ids.has(hash) && !ids.has(decodeURIComponent(hash))) brokenLinks.push(`${name} → #${hash}`);
+  }
 }
 check(missingSeo.length === 0, `所有 ${htmlFiles.length} 個頁面都有 title / description / og:image / canonical${missingSeo.length ? `（缺少：${missingSeo.join(', ')}）` : ''}`);
 check(brokenLinks.length === 0, `站內連結全部有效${brokenLinks.length ? `（失效：\n  ${brokenLinks.join('\n  ')}）` : ''}`);
+
+// 搜尋索引：恰好包含所有已發布文章，不含草稿，且每筆資料完整、網址有效
+check(existsSync(distPathFor('/search/')), '頁面存在：/search/');
+const indexFile = join(DIST, 'search-index.json');
+check(existsSync(indexFile), '搜尋索引已產生：/search-index.json');
+if (existsSync(indexFile)) {
+  const docs = JSON.parse(readFileSync(indexFile, 'utf8'));
+  const indexed = new Set(docs.map((d) => d.id));
+  check(
+    published.every((p) => indexed.has(p.slug)) && indexed.size === published.length,
+    `搜尋索引恰好包含 ${published.length} 篇已發布文章（實際 ${indexed.size} 筆）`,
+  );
+  check(drafts.every((d) => !indexed.has(d.slug)), '搜尋索引不含草稿');
+  const incomplete = docs.filter(
+    (d) => !d.title || !d.description || !d.text || !Array.isArray(d.tags) || !existsSync(distPathFor(d.url)),
+  );
+  check(incomplete.length === 0, `搜尋索引每筆都有標題、摘要、內文、標籤與有效網址${incomplete.length ? `（問題：${incomplete.map((d) => d.id).join(', ')}）` : ''}`);
+}
 
 const robots = join(DIST, 'robots.txt');
 check(existsSync(robots) && /Sitemap: https?:\/\/.+sitemap-index\.xml/.test(readFileSync(robots, 'utf8')), 'robots.txt 指向 Sitemap');

@@ -1,0 +1,148 @@
+---
+import ListingLayout from '../layouts/ListingLayout.astro';
+---
+
+<ListingLayout eyebrow="Search" title="搜尋文章" description="可搜尋標題、摘要、內文、分類與標籤，支援中英文混合關鍵字。">
+  <form class="search-form" action="/search/" method="get" role="search" data-search-form>
+    <label class="visually-hidden" for="q">搜尋關鍵字</label>
+    <input id="q" name="q" type="search" placeholder="例如：Redis、快取、Docker network…" autocomplete="off" />
+    <button class="btn" type="submit">搜尋</button>
+  </form>
+
+  <p class="status" role="status" aria-live="polite" data-search-status>輸入關鍵字開始搜尋。</p>
+  <ol class="results" data-search-results></ol>
+
+  <noscript><p class="empty">搜尋功能需要啟用 JavaScript。你也可以從<a href="/categories/">分類</a>或<a href="/tags/">標籤</a>瀏覽文章。</p></noscript>
+</ListingLayout>
+
+<script>
+  import MiniSearch from 'minisearch';
+  import { MINISEARCH_OPTIONS, SEARCH_OPTIONS, type SearchDoc } from '../utils/search';
+
+  type Result = Pick<SearchDoc, 'title' | 'description' | 'url' | 'category' | 'tags' | 'date'>;
+
+  const form = document.querySelector<HTMLFormElement>('[data-search-form]')!;
+  const input = form.querySelector<HTMLInputElement>('input[name="q"]')!;
+  const status = document.querySelector<HTMLElement>('[data-search-status]')!;
+  const list = document.querySelector<HTMLOListElement>('[data-search-results]')!;
+
+  let index: MiniSearch<SearchDoc> | undefined;
+
+  async function loadIndex(): Promise<MiniSearch<SearchDoc>> {
+    if (index) return index;
+    const response = await fetch('/search-index.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const docs: SearchDoc[] = await response.json();
+    index = new MiniSearch<SearchDoc>(MINISEARCH_OPTIONS);
+    index.addAll(docs);
+    return index;
+  }
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string) {
+    const node = document.createElement(tag);
+    node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function render(results: Result[], query: string) {
+    list.replaceChildren(
+      ...results.map((r) => {
+        const item = el('li', 'result');
+        const link = el('a', 'result-title', r.title);
+        link.href = r.url;
+        const meta = el('p', 'result-meta', `${r.category} · ${r.date}${r.tags.length ? ' · ' + r.tags.map((t) => '#' + t).join(' ') : ''}`);
+        item.append(link, el('p', 'result-desc', r.description), meta);
+        return item;
+      }),
+    );
+    status.textContent = results.length
+      ? `「${query}」共找到 ${results.length} 篇文章。`
+      : `找不到符合「${query}」的文章，試試更短的關鍵字、英文名稱，或從分類與標籤瀏覽。`;
+  }
+
+  let timer: number | undefined;
+  async function run(updateUrl: boolean) {
+    const query = input.value.trim();
+    if (updateUrl) {
+      const url = new URL(location.href);
+      if (query) url.searchParams.set('q', query);
+      else url.searchParams.delete('q');
+      history.replaceState(null, '', url);
+    }
+    if (!query) {
+      list.replaceChildren();
+      status.textContent = '輸入關鍵字開始搜尋。';
+      return;
+    }
+    try {
+      const search = await loadIndex();
+      render(search.search(query, SEARCH_OPTIONS) as unknown as Result[], query);
+    } catch (error) {
+      console.error('[search]', error);
+      status.textContent = '搜尋索引載入失敗，請重新整理頁面再試一次。';
+    }
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    run(true);
+  });
+  input.addEventListener('input', () => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => run(true), 150);
+  });
+
+  const initial = new URLSearchParams(location.search).get('q');
+  if (initial) {
+    input.value = initial;
+    run(false);
+  }
+  input.focus();
+</script>
+
+<style>
+  .status {
+    color: var(--muted);
+    margin: 20px 0 16px;
+  }
+  .results {
+    display: grid;
+    gap: 14px;
+    max-width: var(--prose);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .results :global(.result) {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .results :global(.result-title) {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .results :global(.result-title:hover) {
+    color: var(--link);
+    text-decoration: underline;
+  }
+  .results :global(.result-desc) {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 6px 0;
+  }
+  .results :global(.result-meta) {
+    color: var(--faint);
+    font-size: 0.82rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  noscript a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+</style>

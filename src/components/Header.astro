@@ -36,6 +36,13 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
         }
       </ul>
     </nav>
+    <a class="search-link" href="/search/" aria-current={path.startsWith('/search/') ? 'page' : undefined}>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+      </svg>
+      <span class="visually-hidden">搜尋文章</span>
+    </a>
   </div>
 </header>
 
@@ -117,6 +124,21 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     color: var(--link);
     font-weight: 650;
   }
+  nav {
+    margin-left: auto;
+  }
+  .search-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+  .search-link:hover,
+  .search-link[aria-current='page'] {
+    color: var(--link);
+  }
   .menu-btn {
     display: none;
     width: 44px;
@@ -174,11 +196,23 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       width: 32px;
       height: 32px;
     }
+    .bar {
+      gap: 4px;
+    }
+    .brand {
+      margin-right: auto;
+    }
     .menu-btn {
       display: block;
+      order: 3;
+    }
+    .search-link {
+      order: 2;
     }
     nav {
+      order: 4;
       flex-basis: 100%;
+      margin-left: 0;
       padding-bottom: 12px;
     }
     nav ul {

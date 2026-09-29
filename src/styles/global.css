@@ -360,3 +360,28 @@ a.chip:hover,
     transition: none !important;
   }
 }
+
+/* ===== 搜尋表單（/search/ 與 /blog/ 共用） ===== */
+.search-form {
+  display: flex;
+  gap: 10px;
+  max-width: var(--prose);
+}
+.search-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid #b9c8d3;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+}
+.search-form input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 1px;
+}
+.search-form .btn {
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+}

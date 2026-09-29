@@ -24,6 +24,12 @@ const tags = collectTags(allPosts).slice(0, 12);
   title={page === 1 ? '所有文章' : `所有文章・第 ${page} 頁`}
   description={`共 ${allPosts.length} 篇文章，依發布日期由新到舊排列。可依分類或標籤篩選。`}
 >
+  <form class="search-form" action="/search/" method="get" role="search">
+    <label class="visually-hidden" for="blog-q">搜尋文章</label>
+    <input id="blog-q" name="q" type="search" placeholder="搜尋標題、內文或標籤…" />
+    <button class="btn" type="submit">搜尋</button>
+  </form>
+
   <section class="filters" aria-label="篩選文章">
     <div class="filter-row">
       <h2>分類</h2>
@@ -45,6 +51,9 @@ const tags = collectTags(allPosts).slice(0, 12);
 </ListingLayout>
 
 <style>
+  .search-form {
+    margin-bottom: 24px;
+  }
   .filters {
     display: grid;
     gap: 14px;
