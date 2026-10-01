@@ -22,6 +22,7 @@ export const CATEGORIES = [
   { name: 'Travel', slug: 'travel', group: 'life' },
   { name: 'Reflection', slug: 'reflection', group: 'life' },
   { name: 'Growth', slug: 'growth', group: 'life' },
+  { name: 'Business Logic', slug: 'business-logic', group: 'business-logic' },
 ] as const satisfies ReadonlyArray<{ name: string; slug: string; group: CategoryGroup }>;
 
 export type CategoryName = (typeof CATEGORIES)[number]['name'];
