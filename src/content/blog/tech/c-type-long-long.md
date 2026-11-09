@@ -2,7 +2,7 @@
 title: "溢位overflow: 改用long long 作為變數型態"
 slug: "c-type-long-long"
 description: "變數的類型決定了能儲存資料大小的範圍"
-category: "software"
+category: "Backend"
 tags:
   - C
 publishedAt: "2026-11-09"
