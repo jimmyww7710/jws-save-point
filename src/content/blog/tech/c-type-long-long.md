@@ -11,7 +11,7 @@ cover: "../../../assets/covers/redis-cache.webp"
 coverAlt: "紅色漸層抽象背景"
 ---
 
-int 型態佔 4 Bytes(32 bits)。一個int能表示的範圍是從 2^31 - 1 到 -2^31。 (使用2的補數系統(Two's Complement)，MLB為判斷正負數，而 -1 的原因是為了留給0)。
+int 型態佔 4 Bytes(32 bits)。一個int能表示的範圍是從 2^31 - 1 到 -2^31。 (使用2的補數系統(Two's Complement)，MSB為判斷正負數，而 -1 的原因是為了留給0)。
 一旦超過範圍，溢位會造成運算結果錯誤。
 
 ### 產生溢位overflow錯誤的例子
@@ -63,7 +63,7 @@ int main()
     printf("Integer overflow would occur!\n");
   } else {
     i = i + 1;
-    printf("%d\n", i)l;
+    printf("%d\n", i);
   }
   return 0;
 }
